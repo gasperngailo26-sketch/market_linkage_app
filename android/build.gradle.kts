@@ -1,3 +1,7 @@
+plugins {
+    // This tells the project that the Google Services plugin exists
+    id("com.google.gms.google-services") version "4.4.1" apply false
+}
 allprojects {
     repositories {
         google()

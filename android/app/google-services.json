@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "264463585580",
+    "project_id": "market-linkage-application",
+    "storage_bucket": "market-linkage-application.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:264463585580:android:faa2bb04c4f457079edc89",
+        "android_client_info": {
+          "package_name": "com.gasper.marketlink.market_linkage_application"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAYO99XAOaoft5ukMx07gfxZXA3FgfeiFY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
