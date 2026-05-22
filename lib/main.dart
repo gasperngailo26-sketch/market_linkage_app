@@ -1494,15 +1494,15 @@ class _FarmerDashboardState extends State<FarmerDashboard>
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
-                  value: _category,
+                  initialValue: _category,
                   decoration: const InputDecoration(
                     labelText: 'Category',
                     border: OutlineInputBorder(),
                   ),
                   items: const [
                     DropdownMenuItem(value: 'Food', child: Text('Food')),
-                    DropdownMenuItem(value: 'Livestock', child: Text('Livestock')),
-                    DropdownMenuItem(value: 'Equipment', child: Text('Equipment')),
+                    DropdownMenuItem(value: 'commercial', child: Text('commercial')),
+                    // DropdownMenuItem(value: 'Equipment', child: Text('Equipment')),
                   ],
                   onChanged: (value) {
                     if (value != null) {
@@ -1619,7 +1619,7 @@ class _FarmerDashboardState extends State<FarmerDashboard>
     return ListView.separated(
       padding: const EdgeInsets.all(16.0),
       itemCount: _orders.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      separatorBuilder: (_, _) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
         final order = _orders[index];
         return Card(
@@ -1684,7 +1684,7 @@ class _FarmerDashboardState extends State<FarmerDashboard>
     return ListView.separated(
       padding: const EdgeInsets.all(16.0),
       itemCount: _deliveries.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      separatorBuilder: (_, _) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
         final delivery = _deliveries[index];
         return Card(
@@ -1735,7 +1735,7 @@ class _FarmerDashboardState extends State<FarmerDashboard>
                 ? const Center(child: Text('No feedback received yet.'))
                 : ListView.separated(
                     itemCount: _feedbacks.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 12),
+                    separatorBuilder: (_, _) => const SizedBox(height: 12),
                     itemBuilder: (context, index) {
                       final entry = _feedbacks[index];
                       return Card(
@@ -1781,7 +1781,7 @@ class _FarmerDashboardState extends State<FarmerDashboard>
     return ListView.separated(
       padding: const EdgeInsets.all(16.0),
       itemCount: _buyers.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      separatorBuilder: (_, _) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
         final buyer = _buyers[index];
         return Card(
@@ -1854,6 +1854,17 @@ class _FarmerDashboardState extends State<FarmerDashboard>
                   _tabController.animateTo(5);
                 },
               ),
+              ListTile(
+                leading: const Icon(Icons.logout),
+                title: const Text('Logout'),
+                 onTap: () {
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => const WelcomePage()),
+                (route) => false,
+              );
+            },
+              ),
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                 child: Align(
@@ -1864,7 +1875,7 @@ class _FarmerDashboardState extends State<FarmerDashboard>
               Expanded(
                 child: ListView.separated(
                   itemCount: _buyers.length,
-                  separatorBuilder: (_, __) => const Divider(height: 1),
+                  separatorBuilder: (_, _) => const Divider(height: 1),
                   itemBuilder: (context, index) {
                     final b = _buyers[index];
                     return ListTile(
@@ -1896,16 +1907,7 @@ class _FarmerDashboardState extends State<FarmerDashboard>
         title: const Text('Farmer Dashboard'),
         backgroundColor: Colors.green,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () {
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (context) => const WelcomePage()),
-                (route) => false,
-              );
-            },
-          ),
+         
         ],
       ),
       body: Column(
@@ -2192,7 +2194,7 @@ class _MedicalLabScreenState extends State<MedicalLabScreen> {
                   ? const Center(child: Text('Ask a question to get tailored farming support.'))
                   : ListView.separated(
                       itemCount: _adviceHistory.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 12),
+                      separatorBuilder: (_, _) => const SizedBox(height: 12),
                       itemBuilder: (context, index) {
                         final advice = _adviceHistory[index];
                         return Card(
