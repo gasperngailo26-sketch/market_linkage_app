@@ -1025,6 +1025,98 @@ class ProductPost {
   });
 }
 
+class Order {
+  final String buyerName;
+  final String productName;
+  final String quantity;
+  final String status;
+  final String orderDate;
+  final String totalPrice;
+  final String? buyerPhoto;
+  final String? rejectionReason;
+
+  Order({
+    required this.buyerName,
+    required this.productName,
+    required this.quantity,
+    required this.status,
+    required this.orderDate,
+    required this.totalPrice,
+    this.buyerPhoto,
+    this.rejectionReason,
+  });
+}
+
+class ChatMessage {
+  final String sender;
+  final String message;
+  final String timestamp;
+  final bool isFromFarmer;
+
+  ChatMessage({
+    required this.sender,
+    required this.message,
+    required this.timestamp,
+    required this.isFromFarmer,
+  });
+}
+
+class AIMedicalAdvice {
+  final String topic;
+  final String advice;
+  final String category;
+
+  AIMedicalAdvice({
+    required this.topic,
+    required this.advice,
+    required this.category,
+  });
+}
+
+class Buyer {
+  final String name;
+  final String photoUrl;
+  final String status;
+
+  Buyer({
+    required this.name,
+    required this.photoUrl,
+    required this.status,
+  });
+}
+
+class FeedbackEntry {
+  final String buyerName;
+  final String message;
+  final int rating;
+  final String date;
+
+  FeedbackEntry({
+    required this.buyerName,
+    required this.message,
+    required this.rating,
+    required this.date,
+  });
+}
+
+class Delivery {
+  final String buyerName;
+  final String productName;
+  final String quantity;
+  final String deliveryLocation;
+  final String status;
+  final String orderDate;
+
+  Delivery({
+    required this.buyerName,
+    required this.productName,
+    required this.quantity,
+    required this.deliveryLocation,
+    required this.status,
+    required this.orderDate,
+  });
+}
+
 class FarmerDashboard extends StatefulWidget {
   final String name;
   final String farmerType;
@@ -1041,7 +1133,9 @@ class FarmerDashboard extends StatefulWidget {
   State<FarmerDashboard> createState() => _FarmerDashboardState();
 }
 
-class _FarmerDashboardState extends State<FarmerDashboard> {
+class _FarmerDashboardState extends State<FarmerDashboard>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
@@ -1052,9 +1146,53 @@ class _FarmerDashboardState extends State<FarmerDashboard> {
   String _category = 'Food';
   String? _selectedImageLabel;
   final List<ProductPost> _posts = [];
+  final List<Order> _orders = [];
+  final List<FeedbackEntry> _feedbacks = [];
+  final List<Delivery> _deliveries = [];
+  final List<Buyer> _buyers = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 6, vsync: this);
+
+    // sample data
+    _orders.addAll([
+      Order(
+        buyerName: 'John Traders',
+        productName: 'Maize',
+        quantity: '100 bags',
+        status: 'Pending',
+        orderDate: '2024-05-18',
+        totalPrice: '\$500',
+        buyerPhoto: 'https://via.placeholder.com/50/FF6B6B/FFFFFF?text=JT',
+      ),
+    ]);
+
+    _feedbacks.addAll([
+      FeedbackEntry(buyerName: 'John Traders', message: 'Great produce', rating: 5, date: '2024-05-15'),
+    ]);
+
+    _deliveries.addAll([
+      Delivery(
+        buyerName: 'Fresh Foods Ltd',
+        productName: 'Beans',
+        quantity: '30 bags',
+        deliveryLocation: 'Market Street Warehouse',
+        status: 'Pending Confirmation',
+        orderDate: '2024-05-20',
+      ),
+    ]);
+
+    _buyers.addAll([
+      Buyer(name: 'John Traders', photoUrl: 'https://via.placeholder.com/80/4CAF50/FFFFFF?text=J', status: 'Active'),
+      Buyer(name: 'Fresh Foods Ltd', photoUrl: 'https://via.placeholder.com/80/FF9800/FFFFFF?text=F', status: 'Negotiating'),
+    ]);
+  }
 
   @override
   void dispose() {
+    _tabController.dispose();
     _titleController.dispose();
     _descriptionController.dispose();
     _quantityController.dispose();
@@ -1099,6 +1237,130 @@ class _FarmerDashboardState extends State<FarmerDashboard> {
         const SnackBar(content: Text('Product posted successfully')),
       );
     }
+  }
+
+  void _confirmOrder(int index) {
+    setState(() {
+      _orders[index] = Order(
+        buyerName: _orders[index].buyerName,
+        productName: _orders[index].productName,
+        quantity: _orders[index].quantity,
+        status: 'Confirmed',
+        orderDate: _orders[index].orderDate,
+        totalPrice: _orders[index].totalPrice,
+        buyerPhoto: _orders[index].buyerPhoto,
+        rejectionReason: _orders[index].rejectionReason,
+      );
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Order confirmed successfully')),
+    );
+  }
+
+  void _rejectOrder(int index) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        final reasonController = TextEditingController();
+        return AlertDialog(
+          title: const Text('Reject Order'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Are you sure you want to reject this order?'),
+              const SizedBox(height: 16),
+              TextField(
+                controller: reasonController,
+                decoration: const InputDecoration(
+                  labelText: 'Reason for rejection',
+                  border: OutlineInputBorder(),
+                  hintText: 'Enter reason (optional)',
+                ),
+                maxLines: 3,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  _orders[index] = Order(
+                    buyerName: _orders[index].buyerName,
+                    productName: _orders[index].productName,
+                    quantity: _orders[index].quantity,
+                    status: 'Rejected',
+                    orderDate: _orders[index].orderDate,
+                    totalPrice: _orders[index].totalPrice,
+                    buyerPhoto: _orders[index].buyerPhoto,
+                    rejectionReason: reasonController.text.isNotEmpty
+                        ? reasonController.text
+                        : 'No reason provided',
+                  );
+                });
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Order rejected')),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Reject'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _openNegotiationChat(int index) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => NegotiationChatScreen(
+          buyerName: _orders[index].buyerName,
+          productName: _orders[index].productName,
+          buyerPhoto: _orders[index].buyerPhoto ?? 'https://via.placeholder.com/50/FF6B6B/FFFFFF?text=B',
+        ),
+      ),
+    );
+  }
+
+  void _startDelivery(int index) {
+    setState(() {
+      _deliveries[index] = Delivery(
+        buyerName: _deliveries[index].buyerName,
+        productName: _deliveries[index].productName,
+        quantity: _deliveries[index].quantity,
+        deliveryLocation: _deliveries[index].deliveryLocation,
+        status: 'In Transit',
+        orderDate: _deliveries[index].orderDate,
+      );
+    });
+  }
+
+  void _markDelivered(int index) {
+    setState(() {
+      _deliveries[index] = Delivery(
+        buyerName: _deliveries[index].buyerName,
+        productName: _deliveries[index].productName,
+        quantity: _deliveries[index].quantity,
+        deliveryLocation: _deliveries[index].deliveryLocation,
+        status: 'Delivered',
+        orderDate: _deliveries[index].orderDate,
+      );
+    });
+  }
+
+  void _addFeedbackEntry(String buyerName, String message, int rating) {
+    setState(() {
+      _feedbacks.insert(0, FeedbackEntry(buyerName: buyerName, message: message, rating: rating, date: DateTime.now().toIso8601String().split('T').first));
+    });
   }
 
   Widget _buildImagePreview() {
@@ -1205,9 +1467,431 @@ class _FarmerDashboardState extends State<FarmerDashboard> {
     );
   }
 
+  Widget _buildAddProductTab() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: ListView(
+        children: [
+          const Text(
+            'Post a Product',
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                TextFormField(
+                  controller: _titleController,
+                  decoration: const InputDecoration(
+                    labelText: 'Product Title',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) => value == null || value.trim().isEmpty
+                      ? 'Please enter product title'
+                      : null,
+                ),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<String>(
+                  value: _category,
+                  decoration: const InputDecoration(
+                    labelText: 'Category',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: const [
+                    DropdownMenuItem(value: 'Food', child: Text('Food')),
+                    DropdownMenuItem(value: 'Livestock', child: Text('Livestock')),
+                    DropdownMenuItem(value: 'Equipment', child: Text('Equipment')),
+                  ],
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() {
+                        _category = value;
+                      });
+                    }
+                  },
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _descriptionController,
+                  decoration: const InputDecoration(
+                    labelText: 'Description',
+                    border: OutlineInputBorder(),
+                  ),
+                  maxLines: 3,
+                  validator: (value) => value == null || value.trim().isEmpty
+                      ? 'Please enter a description'
+                      : null,
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _quantityController,
+                  decoration: const InputDecoration(
+                    labelText: 'Quantity',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) => value == null || value.trim().isEmpty
+                      ? 'Please enter the quantity'
+                      : null,
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _timeController,
+                  decoration: const InputDecoration(
+                    labelText: 'Time to Warehouse',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) => value == null || value.trim().isEmpty
+                      ? 'Please enter time to warehouse'
+                      : null,
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _warehouseController,
+                  decoration: const InputDecoration(
+                    labelText: 'Warehouse Location',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) => value == null || value.trim().isEmpty
+                      ? 'Please enter warehouse location'
+                      : null,
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _phoneController,
+                  decoration: const InputDecoration(
+                    labelText: 'Contact Phone',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) => value == null || value.trim().isEmpty
+                      ? 'Please enter phone number'
+                      : null,
+                ),
+                const SizedBox(height: 16),
+                _buildImagePreview(),
+                const SizedBox(height: 12),
+                ElevatedButton(
+                  onPressed: _selectImage,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green.shade600,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 12.0),
+                    child: Text('Select Image', style: TextStyle(fontSize: 16)),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: _postProduct,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 12.0),
+                    child: Text('Post Product', style: TextStyle(fontSize: 16)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          const Text(
+            'Your posts',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          if (_posts.isEmpty)
+            const Text('You have not posted any products yet.'),
+          ..._posts.map(_buildPostCard),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildViewOrdersTab() {
+    if (_orders.isEmpty) {
+      return const Center(child: Text('No orders available.'));
+    }
+
+    return ListView.separated(
+      padding: const EdgeInsets.all(16.0),
+      itemCount: _orders.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      itemBuilder: (context, index) {
+        final order = _orders[index];
+        return Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(order.productName, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                Text('Buyer: ${order.buyerName}'),
+                Text('Quantity: ${order.quantity}'),
+                Text('Status: ${order.status}'),
+                Text('Date: ${order.orderDate}'),
+                Text('Total: ${order.totalPrice}'),
+                if (order.rejectionReason != null && order.status == 'Rejected')
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Text('Rejection reason: ${order.rejectionReason}', style: const TextStyle(color: Colors.red)),
+                  ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    if (order.status != 'Confirmed' && order.status != 'Rejected')
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () => _confirmOrder(index),
+                          child: const Text('Confirm Order'),
+                        ),
+                      ),
+                    if (order.status != 'Confirmed' && order.status != 'Rejected')
+                      const SizedBox(width: 12),
+                    if (order.status != 'Confirmed' && order.status != 'Rejected')
+                      Expanded(
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                          onPressed: () => _rejectOrder(index),
+                          child: const Text('Reject Order'),
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.green.shade700),
+                  onPressed: () => _openNegotiationChat(index),
+                  child: const Text('Open Chat'),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildStartDeliveryTab() {
+    if (_deliveries.isEmpty) {
+      return const Center(child: Text('No deliveries to manage.'));
+    }
+
+    return ListView.separated(
+      padding: const EdgeInsets.all(16.0),
+      itemCount: _deliveries.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      itemBuilder: (context, index) {
+        final delivery = _deliveries[index];
+        return Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(delivery.productName, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                Text('Buyer: ${delivery.buyerName}'),
+                Text('Quantity: ${delivery.quantity}'),
+                Text('Location: ${delivery.deliveryLocation}'),
+                Text('Status: ${delivery.status}'),
+                Text('Date: ${delivery.orderDate}'),
+                const SizedBox(height: 12),
+                if (delivery.status == 'Pending Confirmation')
+                  ElevatedButton(
+                    onPressed: () => _startDelivery(index),
+                    child: const Text('Start Delivery'),
+                  )
+                else if (delivery.status == 'In Transit')
+                  ElevatedButton(
+                    onPressed: () => _markDelivered(index),
+                    child: const Text('Mark Delivered'),
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildFeedbackTab() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Text(
+            'Feedback',
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child: _feedbacks.isEmpty
+                ? const Center(child: Text('No feedback received yet.'))
+                : ListView.separated(
+                    itemCount: _feedbacks.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 12),
+                    itemBuilder: (context, index) {
+                      final entry = _feedbacks[index];
+                      return Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(entry.buyerName, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                              const SizedBox(height: 8),
+                              Text(entry.message),
+                              const SizedBox(height: 8),
+                              Text('Rating: ${entry.rating}/5'),
+                              Text('Date: ${entry.date}'),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () => _addFeedbackEntry('Market Buyer', 'Great product quality and fast delivery.', 5),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green,
+              foregroundColor: Colors.white,
+            ),
+            child: const Padding(
+              padding: EdgeInsets.symmetric(vertical: 12.0),
+              child: Text('Add Sample Feedback', style: TextStyle(fontSize: 16)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildChatsTab() {
+    if (_buyers.isEmpty) {
+      return const Center(child: Text('No chats yet.'));
+    }
+    return ListView.separated(
+      padding: const EdgeInsets.all(16.0),
+      itemCount: _buyers.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      itemBuilder: (context, index) {
+        final buyer = _buyers[index];
+        return Card(
+          child: ListTile(
+            leading: CircleAvatar(backgroundImage: NetworkImage(buyer.photoUrl)),
+            title: Text(buyer.name),
+            subtitle: Text(buyer.status),
+            trailing: const Icon(Icons.chat),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => NegotiationChatScreen(
+                    buyerName: buyer.name,
+                    productName: '',
+                    buyerPhoto: buyer.photoUrl,
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildMedicalLabTab() {
+    return const MedicalLabScreen();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: Drawer(
+        child: SafeArea(
+          child: Column(
+            children: [
+              UserAccountsDrawerHeader(
+                currentAccountPicture: CircleAvatar(
+                  backgroundImage: NetworkImage(_buyers.isNotEmpty ? _buyers.first.photoUrl : 'https://via.placeholder.com/80'),
+                ),
+                accountName: Text(widget.name),
+                accountEmail: Text(widget.location),
+              ),
+              const ListTile(
+                leading: Icon(Icons.dashboard),
+                title: Text('Dashboard Home'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.chat),
+                title: const Text('Chats'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _tabController.animateTo(4);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.feedback),
+                title: const Text('Feedback'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _tabController.animateTo(3);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.science),
+                title: const Text('Medical Laboratory'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _tabController.animateTo(5);
+                },
+              ),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text('Customers', style: TextStyle(fontWeight: FontWeight.w600)),
+                ),
+              ),
+              Expanded(
+                child: ListView.separated(
+                  itemCount: _buyers.length,
+                  separatorBuilder: (_, __) => const Divider(height: 1),
+                  itemBuilder: (context, index) {
+                    final b = _buyers[index];
+                    return ListTile(
+                      leading: CircleAvatar(backgroundImage: NetworkImage(b.photoUrl)),
+                      title: Text(b.name),
+                      subtitle: Text(b.status),
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => NegotiationChatScreen(
+                              buyerName: b.name,
+                              productName: '',
+                              buyerPhoto: b.photoUrl,
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
       appBar: AppBar(
         title: const Text('Farmer Dashboard'),
         backgroundColor: Colors.green,
@@ -1224,210 +1908,313 @@ class _FarmerDashboardState extends State<FarmerDashboard> {
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16.0),
+      body: Column(
         children: [
-          Text(
-            'Welcome, ${widget.name}',
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Type: ${widget.farmerType}',
-            style: const TextStyle(fontSize: 16),
-          ),
-          Text(
-            'Location: ${widget.location}',
-            style: const TextStyle(fontSize: 16),
-          ),
-          const SizedBox(height: 24),
-          Card(
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Welcome, ${widget.name}', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 4),
+                Text('Type: ${widget.farmerType}'),
+                Text('Location: ${widget.location}'),
+              ],
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const Text(
-                      'Post a product',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _titleController,
-                      decoration: const InputDecoration(
-                        labelText: 'Product title',
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'Please enter product title';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    DropdownButtonFormField<String>(
-                      value: _category,
-                      decoration: const InputDecoration(
-                        labelText: 'Category',
-                        border: OutlineInputBorder(),
-                      ),
-                      items: const [
-                        DropdownMenuItem(value: 'Food', child: Text('Food')),
-                        DropdownMenuItem(
-                          value: 'Commercial Crop',
-                          child: Text('Commercial Crop'),
-                        ),
-                      ],
-                      onChanged: (value) {
-                        if (value != null) {
-                          setState(() {
-                            _category = value;
-                          });
-                        }
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _descriptionController,
-                      decoration: const InputDecoration(
-                        labelText: 'Description',
-                        hintText: 'Tell buyers about your product',
-                        border: OutlineInputBorder(),
-                      ),
-                      maxLines: 3,
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'Please enter a description';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _quantityController,
-                      decoration: const InputDecoration(
-                        labelText: 'Quantity',
-                        hintText: 'e.g. 200 kg, 5 sacks',
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'Please enter quantity';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _timeController,
-                      decoration: const InputDecoration(
-                        labelText: 'Time from harvest to warehouse',
-                        hintText: 'e.g. 2 days',
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'Please enter time to warehouse';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _warehouseController,
-                      decoration: const InputDecoration(
-                        labelText: 'Warehouse location',
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'Please enter warehouse location';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _phoneController,
-                      decoration: const InputDecoration(
-                        labelText: 'Phone number',
-                        hintText: '+123456789',
-                        border: OutlineInputBorder(),
-                      ),
-                      keyboardType: TextInputType.phone,
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'Please enter phone number';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    _buildImagePreview(),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedButton.icon(
-                            onPressed: _selectImage,
-                            icon: const Icon(Icons.upload_file),
-                            label: const Text('Upload image'),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: _postProduct,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        foregroundColor: Colors.white,
-                      ),
-                      child: const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 14.0),
-                        child: Text(
-                          'Post product',
-                          style: TextStyle(fontSize: 16),
-                        ),
-                      ),
-                    ),
-                  ],
+          ),
+          const Divider(height: 1),
+          Expanded(
+            child: Column(
+              children: [
+                Container(
+                  color: Colors.green.shade50,
+                  child: TabBar(
+                    controller: _tabController,
+                    isScrollable: true,
+                    labelColor: Colors.green.shade800,
+                    indicatorColor: Colors.green.shade800,
+                    tabs: const [
+                      Tab(text: 'Add Product'),
+                      Tab(text: 'View Orders'),
+                      Tab(text: 'Start Delivery'),
+                      Tab(text: 'Feedback'),
+                      Tab(text: 'Chats'),
+                      Tab(text: 'Med Lab'),
+                    ],
+                  ),
                 ),
-              ),
+                Expanded(
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: [
+                      _buildAddProductTab(),
+                      _buildViewOrdersTab(),
+                      _buildStartDeliveryTab(),
+                      _buildFeedbackTab(),
+                      _buildChatsTab(),
+                      _buildMedicalLabTab(),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 24),
-          const Text(
-            'Posted products',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 12),
-          if (_posts.isEmpty)
-            Padding(
-              padding: const EdgeInsets.only(top: 12.0),
+        ],
+      ),
+    );
+  }
+}
+
+class NegotiationChatScreen extends StatefulWidget {
+  final String buyerName;
+  final String productName;
+  final String buyerPhoto;
+
+  const NegotiationChatScreen({
+    super.key,
+    required this.buyerName,
+    required this.productName,
+    required this.buyerPhoto,
+  });
+
+  @override
+  State<NegotiationChatScreen> createState() => _NegotiationChatScreenState();
+}
+
+class _NegotiationChatScreenState extends State<NegotiationChatScreen> {
+  final _messageController = TextEditingController();
+  final List<ChatMessage> _messages = [];
+
+  @override
+  void dispose() {
+    _messageController.dispose();
+    super.dispose();
+  }
+
+  void _sendMessage() {
+    final text = _messageController.text.trim();
+    if (text.isEmpty) return;
+    setState(() {
+      _messages.add(ChatMessage(
+        sender: widget.buyerName,
+        message: text,
+        timestamp: DateTime.now().toIso8601String().split('T').first,
+        isFromFarmer: true,
+      ));
+      _messageController.clear();
+      _messages.add(ChatMessage(
+        sender: widget.buyerName,
+        message: 'Thanks for your message. I will review and respond shortly.',
+        timestamp: DateTime.now().toIso8601String().split('T').first,
+        isFromFarmer: false,
+      ));
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Row(
+          children: [
+            CircleAvatar(backgroundImage: NetworkImage(widget.buyerPhoto)),
+            const SizedBox(width: 12),
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text(
-                    'No products posted yet. Use the form above to create a new listing.',
-                    style: TextStyle(fontSize: 16),
-                  ),
+                children: [
+                  Text(widget.buyerName, style: const TextStyle(fontSize: 18)),
+                  const Text('Negotiation chat', style: TextStyle(fontSize: 12)),
                 ],
               ),
-            )
-          else
-            ..._posts.map(_buildPostCard),
+            ),
+          ],
+        ),
+        backgroundColor: Colors.green,
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: _messages.isEmpty
+                ? const Center(child: Text('Start the negotiation by sending a message.'))
+                : ListView.builder(
+                    padding: const EdgeInsets.all(16.0),
+                    itemCount: _messages.length,
+                    itemBuilder: (context, index) {
+                      final message = _messages[index];
+                      return Align(
+                        alignment: message.isFromFarmer ? Alignment.centerRight : Alignment.centerLeft,
+                        child: Card(
+                          color: message.isFromFarmer ? Colors.green.shade100 : Colors.grey.shade200,
+                          child: Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(message.message),
+                                const SizedBox(height: 8),
+                                Text(
+                                  message.timestamp,
+                                  style: const TextStyle(fontSize: 10, color: Colors.black54),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+            color: Colors.grey.shade100,
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _messageController,
+                    decoration: const InputDecoration(
+                      hintText: 'Type your message...',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                ElevatedButton(
+                  onPressed: _sendMessage,
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                  child: const Icon(Icons.send),
+                ),
+              ],
+            ),
+          ),
         ],
+      ),
+    );
+  }
+}
+
+class MedicalLabScreen extends StatefulWidget {
+  const MedicalLabScreen({super.key});
+
+  @override
+  State<MedicalLabScreen> createState() => _MedicalLabScreenState();
+}
+
+class _MedicalLabScreenState extends State<MedicalLabScreen> {
+  final _queryController = TextEditingController();
+  final List<AIMedicalAdvice> _adviceHistory = [];
+
+  @override
+  void dispose() {
+    _queryController.dispose();
+    super.dispose();
+  }
+
+  void _askLab() {
+    final query = _queryController.text.trim();
+    if (query.isEmpty) return;
+    final advice = _generateAdviceForQuery(query);
+    setState(() {
+      _adviceHistory.insert(0, advice);
+      _queryController.clear();
+    });
+  }
+
+  AIMedicalAdvice _generateAdviceForQuery(String query) {
+    if (query.toLowerCase().contains('seed')) {
+      return AIMedicalAdvice(
+        topic: 'Seed recommendation',
+        advice: 'Use a certified drought-tolerant variety this season and rotate with legumes for soil health.',
+        category: 'Seed',
+      );
+    }
+    if (query.toLowerCase().contains('fertilizer')) {
+      return AIMedicalAdvice(
+        topic: 'Fertilizer advice',
+        advice: 'Apply balanced NPK and add organic compost to improve nutrient retention.',
+        category: 'Fertilizer',
+      );
+    }
+    if (query.toLowerCase().contains('soil')) {
+      return AIMedicalAdvice(
+        topic: 'Soil recommendation',
+        advice: 'Test soil pH and use lime for acidic soils; build organic matter with cover crops.',
+        category: 'Soil',
+      );
+    }
+    return AIMedicalAdvice(
+      topic: 'General advice',
+      advice: 'Monitor crop health regularly, use integrated pest management, and maintain good water management.',
+      category: 'General',
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('AI Medical Laboratory'),
+        backgroundColor: Colors.green,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text(
+              'Ask the AI Lab',
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _queryController,
+              decoration: const InputDecoration(
+                labelText: 'What do you need help with?',
+                hintText: 'e.g. best seed, fertilizer, soil type',
+                border: OutlineInputBorder(),
+              ),
+              minLines: 2,
+              maxLines: 3,
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: _askLab,
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+              child: const Padding(
+                padding: EdgeInsets.symmetric(vertical: 14.0),
+                child: Text('Ask the AI Lab', style: TextStyle(fontSize: 16)),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: _adviceHistory.isEmpty
+                  ? const Center(child: Text('Ask a question to get tailored farming support.'))
+                  : ListView.separated(
+                      itemCount: _adviceHistory.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 12),
+                      itemBuilder: (context, index) {
+                        final advice = _adviceHistory[index];
+                        return Card(
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(advice.topic, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                const SizedBox(height: 8),
+                                Text(advice.advice),
+                                const SizedBox(height: 8),
+                                Text('Category: ${advice.category}', style: const TextStyle(color: Colors.green)),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
       ),
     );
   }
