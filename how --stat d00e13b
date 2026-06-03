@@ -1,0 +1,9 @@
+[33mcommit d00e13bf5df28e550cc8d918f8641c3886979629[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m
+Merge: 85022e2 665ab84
+Author: Gasper Ngailo <gasperngailo26@gmail.com>
+Date:   Mon Jun 1 13:59:36 2026 +0300
+
+    fix the merge conflict
+
+ lib/main.dart | Bin [31m89818[m -> [32m21550[m bytes
+ 1 file changed, 0 insertions(+), 0 deletions(-)

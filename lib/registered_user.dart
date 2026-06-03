@@ -30,7 +30,9 @@ class RegisteredUser {
   final String lastName;
   final String email;
   final String username;
-  final String password;
+  String password; // Changed from final to allow password updates
+  Map<String, String>
+  securityAnswers; // New field for security question answers
 
   RegisteredUser({
     required this.role,
@@ -39,6 +41,7 @@ class RegisteredUser {
     required this.email,
     required this.username,
     required this.password,
+    this.securityAnswers = const {},
   });
 
   Map<String, dynamic> toJson() {
@@ -49,6 +52,7 @@ class RegisteredUser {
       'email': email,
       'username': username,
       'password': password,
+      'securityAnswers': securityAnswers,
     };
   }
 
@@ -60,6 +64,9 @@ class RegisteredUser {
       email: json['email'] as String,
       username: json['username'] as String,
       password: json['password'] as String,
+      securityAnswers: Map<String, String>.from(
+        (json['securityAnswers'] as Map<dynamic, dynamic>?) ?? {},
+      ),
     );
   }
 }
