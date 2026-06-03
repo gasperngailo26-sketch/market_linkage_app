@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:market_linkage_application/main.dart' show BuyerDashboard;
+import 'package:market_linkage_application/screens/buyerdashboard.dart';
 import 'package:market_linkage_application/registered_user.dart';
 
 class BuyerLoginPage extends StatefulWidget {

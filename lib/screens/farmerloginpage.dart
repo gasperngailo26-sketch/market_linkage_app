@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:market_linkage_application/main.dart' show FarmerDashboard;
+import 'package:market_linkage_application/screens/farmerdashboard.dart';
 import 'package:market_linkage_application/registered_user.dart';
 
 class FarmerLoginPage extends StatefulWidget {
