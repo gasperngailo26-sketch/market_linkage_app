@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:market_linkage_application/main.dart' show BuyerDashboard;
 import 'package:market_linkage_application/registered_user.dart';
+import 'package:market_linkage_application/screens/buyerdashboard.dart';
 
 class BuyerLoginPage extends StatefulWidget {
   const BuyerLoginPage({super.key});
@@ -14,6 +13,7 @@ class _BuyerLoginPageState extends State<BuyerLoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailOrUsernameController = TextEditingController();
   final _passwordController = TextEditingController();
+
   Future<void> _handleForgotPassword() async {
     showDialog(
       context: context,
@@ -25,13 +25,13 @@ class _BuyerLoginPageState extends State<BuyerLoginPage> {
   }
 
   Future<void> _verifySecurityQuestions(String email) async {
-    final user = findRegisteredUser(email);
+    final user = findRegisteredUser(email.trim());
 
     if (user == null) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("User not found")),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text("User not found")));
       }
       return;
     }
@@ -354,8 +354,7 @@ class _BuyerRegisterPageState extends State<BuyerRegisterPage> {
           username: username,
           password: password,
           securityAnswers: {
-            _selectedSecurityQuestion:
-                _securityAnswerController.text.trim(),
+            _selectedSecurityQuestion: _securityAnswerController.text.trim(),
           },
         ),
       );
@@ -615,7 +614,9 @@ class _BuyerRegisterPageState extends State<BuyerRegisterPage> {
                       ),
                       const SizedBox(height: 24),
                       ElevatedButton(
-                        onPressed: _register,
+                        onPressed: () {
+                          _register();
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.orange.shade600,
                           foregroundColor: Colors.white,
@@ -1088,9 +1089,7 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
 
     if (email.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Please enter your email or username."),
-        ),
+        const SnackBar(content: Text("Please enter your email or username.")),
       );
       return;
     }
@@ -1119,9 +1118,7 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(24.0),
         child: SingleChildScrollView(
@@ -1130,19 +1127,13 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
             children: [
               const Text(
                 'Forgot Your Password?',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
               const Text(
                 'Enter your email or username to recover your account.',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.grey,
-                  fontSize: 14,
-                ),
+                style: TextStyle(color: Colors.grey, fontSize: 14),
               ),
               const SizedBox(height: 24),
               TextField(
@@ -1167,7 +1158,9 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: _isLoading ? null : _continueToSecurityQuestions,
+                      onPressed: _isLoading
+                          ? null
+                          : _continueToSecurityQuestions,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.orange.shade600,
                       ),
@@ -1175,9 +1168,7 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
                           ? const SizedBox(
                               height: 20,
                               width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                              ),
+                              child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : const Text('Continue'),
                     ),
@@ -1320,9 +1311,7 @@ class _SecurityQuestionDialogState extends State<SecurityQuestionDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(24.0),
         child: SingleChildScrollView(
@@ -1345,10 +1334,7 @@ class _SecurityQuestionDialogState extends State<SecurityQuestionDialog> {
                     ? 'Answer your security question to verify your identity'
                     : 'Enter your new password',
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Colors.grey,
-                  fontSize: 14,
-                ),
+                style: const TextStyle(color: Colors.grey, fontSize: 14),
               ),
               const SizedBox(height: 24),
 

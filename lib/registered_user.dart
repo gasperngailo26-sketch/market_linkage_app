@@ -24,6 +24,12 @@ String generateStrongPassword() {
   return passwordChars.join();
 }
 
+bool looksLikeEmail(String value) {
+  final trimmed = value.trim();
+  // Using a cleaner, standard email regex
+  return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(trimmed);
+}
+
 class RegisteredUser {
   final String role;
   final String firstName;
@@ -41,7 +47,7 @@ class RegisteredUser {
     required this.email,
     required this.username,
     required this.password,
-    this.securityAnswers = const {},
+    required this.securityAnswers,
   });
 
   Map<String, dynamic> toJson() {
@@ -64,9 +70,22 @@ class RegisteredUser {
       email: json['email'] as String,
       username: json['username'] as String,
       password: json['password'] as String,
-      securityAnswers: Map<String, String>.from(
-        (json['securityAnswers'] as Map<dynamic, dynamic>?) ?? {},
-      ),
+      securityAnswers: Map<String, String>.from(json['securityAnswers'] as Map),
+    );
+  }
+
+  RegisteredUser copyWith({
+    String? password,
+    Map<String, String>? securityAnswers,
+  }) {
+    return RegisteredUser(
+      role: role,
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
+      username: username,
+      password: password ?? this.password,
+      securityAnswers: securityAnswers ?? this.securityAnswers,
     );
   }
 }
@@ -74,11 +93,6 @@ class RegisteredUser {
 final List<RegisteredUser> registeredUsers = [];
 
 String normalizeLogin(String value) => value.trim().toLowerCase();
-
-bool looksLikeEmail(String value) {
-  final trimmed = value.trim();
-  return RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+\.?$').hasMatch(trimmed);
-}
 
 RegisteredUser? findRegisteredUser(String login) {
   final normalizedLogin = normalizeLogin(login);
