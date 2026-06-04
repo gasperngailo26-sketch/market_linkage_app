@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:market_linkage_application/registered_user.dart'
-    show loadRegisteredUsers;
 import 'package:market_linkage_application/screens/buyerloginpage.dart'
     show BuyerLoginPage;
 import 'package:market_linkage_application/screens/farmerloginpage.dart'
