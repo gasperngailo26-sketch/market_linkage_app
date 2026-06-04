@@ -165,11 +165,13 @@ class _SignUpPageState extends State<SignUpPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -254,6 +256,24 @@ class _SignUpPageState extends State<SignUpPage> {
                   r'(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*])',
                 ).hasMatch(value)) {
                   return 'Password must contain letters, numbers, and symbols';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _confirmPasswordController,
+              decoration: const InputDecoration(
+                labelText: 'Confirm Password',
+                border: OutlineInputBorder(),
+              ),
+              obscureText: true,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please confirm password';
+                }
+                if (value != _passwordController.text) {
+                  return 'Passwords do not match';
                 }
                 return null;
               },
