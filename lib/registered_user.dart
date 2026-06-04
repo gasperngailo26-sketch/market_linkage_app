@@ -24,6 +24,12 @@ String generateStrongPassword() {
   return passwordChars.join();
 }
 
+bool looksLikeEmail(String value) {
+  final trimmed = value.trim();
+  // Using a cleaner, standard email regex
+  return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(trimmed);
+}
+
 class RegisteredUser {
   final String role;
   final String firstName;
@@ -39,6 +45,9 @@ class RegisteredUser {
     required this.email,
     required this.username,
     required this.password,
+    required Map<String, String> securityAnswers,
+    required securityQuestion,
+    required securityAnswer,
   });
 
   Map<String, dynamic> toJson() {
@@ -60,46 +69,62 @@ class RegisteredUser {
       email: json['email'] as String,
       username: json['username'] as String,
       password: json['password'] as String,
+      securityAnswers: {},
+      securityQuestion: null,
+      securityAnswer: null,
     );
   }
-}
 
-final List<RegisteredUser> registeredUsers = [];
-
-String normalizeLogin(String value) => value.trim().toLowerCase();
-
-bool looksLikeEmail(String value) {
-  final trimmed = value.trim();
-  return RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+\.?$').hasMatch(trimmed);
-}
-
-RegisteredUser? findRegisteredUser(String login) {
-  final normalizedLogin = normalizeLogin(login);
-  for (final user in registeredUsers) {
-    if (normalizeLogin(user.email) == normalizedLogin ||
-        normalizeLogin(user.username) == normalizedLogin) {
-      return user;
-    }
+  RegisteredUser copyWith({
+    required String password,
+    required dynamic securityAnswer,
+    required dynamic securityQuestion,
+  }) {
+    return RegisteredUser(
+      role: role,
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
+      username: username,
+      password: password,
+      securityQuestion: securityQuestion, // Use the variable from your class
+      securityAnswer: securityAnswer,
+      securityAnswers: {}, // Use the variable from your class
+    );
   }
-  return null;
-}
 
-Future<void> loadRegisteredUsers() async {
-  final prefs = await SharedPreferences.getInstance();
-  final stored = prefs.getString(_registeredUsersStorageKey);
-  if (stored == null || stored.isEmpty) return;
-  final decoded = jsonDecode(stored) as List<dynamic>;
-  registeredUsers.clear();
-  registeredUsers.addAll(
-    decoded.map((item) {
-      final map = Map<String, dynamic>.from(item as Map);
-      return RegisteredUser.fromJson(map);
-    }),
-  );
-}
+  final List<RegisteredUser> registeredUsers = [];
 
-Future<void> saveRegisteredUsers() async {
-  final prefs = await SharedPreferences.getInstance();
-  final encoded = jsonEncode(registeredUsers.map((u) => u.toJson()).toList());
-  await prefs.setString(_registeredUsersStorageKey, encoded);
+  String normalizeLogin(String value) => value.trim().toLowerCase();
+
+  RegisteredUser? findRegisteredUser(String login) {
+    final normalizedLogin = normalizeLogin(login);
+    for (final user in registeredUsers) {
+      if (normalizeLogin(user.email) == normalizedLogin ||
+          normalizeLogin(user.username) == normalizedLogin) {
+        return user;
+      }
+    }
+    return null;
+  }
+
+  Future<void> loadRegisteredUsers() async {
+    final prefs = await SharedPreferences.getInstance();
+    final stored = prefs.getString(_registeredUsersStorageKey);
+    if (stored == null || stored.isEmpty) return;
+    final decoded = jsonDecode(stored) as List<dynamic>;
+    registeredUsers.clear();
+    registeredUsers.addAll(
+      decoded.map((item) {
+        final map = Map<String, dynamic>.from(item as Map);
+        return RegisteredUser.fromJson(map);
+      }),
+    );
+  }
+
+  Future<void> saveRegisteredUsers() async {
+    final prefs = await SharedPreferences.getInstance();
+    final encoded = jsonEncode(registeredUsers.map((u) => u.toJson()).toList());
+    await prefs.setString(_registeredUsersStorageKey, encoded);
+  }
 }
