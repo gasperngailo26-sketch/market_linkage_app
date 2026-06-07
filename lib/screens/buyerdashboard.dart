@@ -14,7 +14,7 @@ class BuyerDashboard extends StatelessWidget {
     required this.preferredProducts,
   });
 
-  @override
+  // ignore: annotate_overrides
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(

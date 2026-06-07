@@ -54,7 +54,7 @@ class _AuthPageState extends State<AuthPage>
       ),
       body: TabBarView(
         controller: _tabController,
-        children: const [LoginPage(), SignUpPage()],
+        children: [LoginPage(), SignUpPage()],
       ),
     );
   }
